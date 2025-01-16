@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Converter</title>
+    <style>
+        /* Body and Background */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgb(102, 175, 252); /* Fallback for older browsers */
+        }
+
+        /* Background Image and Animation */
+        .planetImg {
+            position: absolute;
+            top: -5%;
+            right: 13%;
+            width: 300px;
+            height: auto;
+            animation: float 12s ease-in-out infinite;
+            z-index: -1; /* Send image behind the content */
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0px) translateX(5px) scale(1) rotate(156deg);
+            }
+            50% {
+                transform: translateY(-20px) translateX(-5px) scale(1) rotate(162deg);
+            }
+            100% {
+                transform: translateY(0px) translateX(5px) scale(1) rotate(156deg);
+            }
+        }
+
+        .container {
+            max-width: 500px;
+            padding: 20px;
+            background: rgba(180, 8, 253, 0.303);
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(242, 96, 215, 0.5);
+            backdrop-filter: blur(10px);
+        }
+
+        input, select, button {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        input, select {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        select {
+            background-color: rgba(255, 182, 193, 0.8); /* Light pink background */
+            color: black;
+            cursor: pointer;
+        }
+
+        option {
+            color: black; /* Set the option text color to black */
+            background-color: lightpink; /* Light pink background for options */
+        }
+
+        button {
+            background-color: #ffc800;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.4s, transform 0.4s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+            transform: translateY(-5px);
+        }
+
+        .result {
+            margin-top: 10px;
+            font-size: 18px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Image with Animation -->
+    <img class="planetImg" src="https://assets.codepen.io/1651485/planet.png" alt="Background Image">
+
+    <div class="container">
+        <h1>Currency Converter</h1>
+        <label for="amount">Enter amount:</label>
+        <input type="number" id="amount" placeholder="Amount">
+        
+        <label for="fromCurrency">From:</label>
+        <select id="fromCurrency">
+            <option value="" disabled selected>Select a currency</option>
+        </select>
+        
+        <label for="toCurrency">To:</label>
+        <select id="toCurrency">
+            <option value="" disabled selected>Select a currency</option>
+        </select>
+        
+        <button onclick="convertCurrency()">Convert</button>
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const apiKey = '1f0454e95e06f4d8b49d303174d1dd2f';  // Your Fixer.io API key
+        const apiUrl = `http://data.fixer.io/api/latest?access_key=${apiKey}`;
+
+        async function loadCurrencies() {
+            try {
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+
+                const data = await response.json();
+                if (!data.rates) {
+                    throw new Error('No currency rates found in the API response.');
+                }
+
+                const currencies = Object.keys(data.rates);
+                const fromSelect = document.getElementById('fromCurrency');
+                const toSelect = document.getElementById('toCurrency');
+                
+                currencies.forEach(currency => {
+                    const optionFrom = document.createElement('option');
+                    optionFrom.value = currency;
+                    optionFrom.textContent = currency;
+                    fromSelect.appendChild(optionFrom);
+
+                    const optionTo = document.createElement('option');
+                    optionTo.value = currency;
+                    optionTo.textContent = currency;
+                    toSelect.appendChild(optionTo);
+                });
+            } catch (error) {
+                console.error('Error loading currencies:', error);
+                alert('Failed to load currencies. Please check your network or API key.');
+            }
+        }
+
+        async function convertCurrency() {
+            try {
+                const amount = document.getElementById('amount').value;
+                const fromCurrency = document.getElementById('fromCurrency').value;
+                const toCurrency = document.getElementById('toCurrency').value;
+
+                if (!amount || isNaN(amount) || fromCurrency === toCurrency || !fromCurrency || !toCurrency) {
+                    alert('Please enter a valid amount and select different currencies.');
+                    return;
+                }
+
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+
+                const data = await response.json();
+                const fromRate = data.rates[fromCurrency];
+                const toRate = data.rates[toCurrency];
+                const result = (amount * toRate) / fromRate;
+                
+                document.getElementById('result').textContent = `${amount} ${fromCurrency} is equal to ${result.toFixed(2)} ${toCurrency}.`;
+            } catch (error) {
+                console.error('Error converting currency:', error);
+            }
+        }
+
+        loadCurrencies(); // Call the loadCurrencies function here
+    </script>
+</body>
+</html>

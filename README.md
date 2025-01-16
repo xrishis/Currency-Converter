@@ -41,7 +41,7 @@ The Currency Converter is a web application that allows users to convert between
 ### Steps
 1. **Clone the Repository**:
    ```bash
-   git clone https://github.com/yourusername/futuristic-currency-converter.git
+   git clone https://github.com/xrishis/currency-converter.git
    ```
 2. **Navigate to the Project Directory**:
    ```bash
